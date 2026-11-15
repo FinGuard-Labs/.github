@@ -45,11 +45,11 @@ PostgreSQL 16 + pgvector
 
 | 저장소 | 역할 | 스택 |
 | :--- | :--- | :--- |
-| [backend](https://github.com/FinGuard-Labs/backend) | 포트폴리오 관리, 시세 수집 배치, 외부 API 장애 격리 | Java 17, Spring Boot, JPA, QueryDSL, Spring Batch, Resilience4j |
-| [ai-engine](https://github.com/FinGuard-Labs/ai-engine) | 정량 지표 계산, 공시 RAG 검색, 리포트 생성 | Python 3.11, FastAPI, Pandas, NumPy, pgvector |
-| [frontend](https://github.com/FinGuard-Labs/frontend) | 대시보드, 분석 진행 상태 스트리밍 화면 | Vue 3, Vite, Pinia |
-| [infra](https://github.com/FinGuard-Labs/infra) | 로컬 실행 환경과 DB 스키마 | Docker Compose, PostgreSQL, Redis |
-| [docs](https://github.com/FinGuard-Labs/docs) | 아키텍처 설계서, 트러블슈팅과 성능 측정 기록 | Markdown |
+| backend | 포트폴리오 관리, 시세 수집 배치, 외부 API 장애 격리 | Java 17, Spring Boot, JPA, QueryDSL, Spring Batch, Resilience4j |
+| ai-engine | 정량 지표 계산, 공시 RAG 검색, 리포트 생성 | Python 3.11, FastAPI, Pandas, NumPy, pgvector |
+| frontend | 대시보드, 분석 진행 상태 스트리밍 화면 | Vue 3, Vite, Pinia |
+| infra | 로컬 실행 환경과 DB 스키마 | Docker Compose, PostgreSQL, Redis |
+| docs | 아키텍처 설계서, 트러블슈팅과 성능 측정 기록 | Markdown |
 
 ## 진행 상황
 
