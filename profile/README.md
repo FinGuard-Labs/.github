@@ -28,18 +28,90 @@
 
 ## 아키텍처
 
+```mermaid
+flowchart TB
+    FE["frontend<br/>Vue 3 · Vite · Pinia<br/>:5173"]
+
+    subgraph BE["backend · Spring Boot 3.5 · :8080"]
+        direction LR
+        B1["포트폴리오·자산 관리<br/>JPA + QueryDSL"]
+        B2["일별 시세·공시 수집<br/>Spring Batch"]
+        B3["외부 API 장애 격리<br/>Resilience4j"]
+    end
+
+    subgraph AI["ai-engine · FastAPI · :8000"]
+        direction LR
+        A1["1. 정량 분석<br/>Pandas / NumPy"] --> A2["2. RAG 검색<br/>pgvector"] --> A3["3. 리포트 생성"]
+    end
+
+    EXT["외부 시세 API"]
+    REDIS[("Redis :6379<br/>시세 캐싱 · 분산 락")]
+    PG[("PostgreSQL 16 + pgvector<br/>:5432")]
+    OLLAMA["Ollama :11434<br/>로컬 LLM"]
+
+    FE -- "REST API / SSE" --> BE
+    BE -- "내부 REST" --> AI
+    B3 -. "호출" .-> EXT
+    BE <--> REDIS
+    BE --> PG
+    AI --> PG
+    A3 --> OLLAMA
 ```
-[frontend]  Vue 3 + Vite + Pinia
-     │  REST API / SSE
-     ▼
-[backend]  Spring Boot  ◄──►  Redis (시세 캐싱 / 분산 락)
-     │  포트폴리오 관리 · 시세 수집 배치 · 서킷 브레이커
-     ▼
-[ai-engine]  FastAPI  ──►  Ollama (로컬 LLM)
-     │  정량 분석 · RAG 검색 · 리포트 생성
-     ▼
-PostgreSQL 16 + pgvector
+
+## ERD
+
+```mermaid
+erDiagram
+    users ||--o{ portfolios : "보유"
+    users ||--o{ ai_analysis_reports : "분석 이력"
+
+    users {
+        bigint user_id PK
+        varchar email UK
+        varchar risk_profile "STABLE, NEUTRAL, AGGRESSIVE"
+        numeric target_cash_ratio "목표 현금 비중"
+        timestamptz created_at
+    }
+    portfolios {
+        bigint portfolio_id PK
+        bigint user_id FK
+        varchar ticker "종목코드"
+        numeric quantity "보유수량"
+        numeric avg_buy_price "평균매수가"
+        numeric target_weight "목표비중"
+        bigint version "낙관적 락"
+        timestamptz updated_at
+    }
+    ai_analysis_reports {
+        bigint report_id PK
+        bigint user_id FK
+        numeric total_return_rate "수익률"
+        numeric mdd_rate "최대낙폭"
+        jsonb rebalancing_guide "종목별 매수·매도 수량"
+        text ai_summary_text "LLM 생성 리포트"
+        timestamptz created_at
+    }
+    daily_stock_prices {
+        bigint price_id PK
+        varchar ticker "ticker + trade_date 유니크"
+        date trade_date
+        numeric open_price
+        numeric high_price
+        numeric low_price
+        numeric close_price
+        bigint volume
+    }
+    disclosure_vectors {
+        bigint doc_id PK
+        varchar ticker
+        varchar title
+        text content_chunk "원문 텍스트"
+        vector embedding "768차원"
+        timestamptz published_at
+    }
 ```
+
+`daily_stock_prices`와 `disclosure_vectors`는 외래 키 없이 `ticker` 값으로 연결된다.
 
 ## 저장소
 
